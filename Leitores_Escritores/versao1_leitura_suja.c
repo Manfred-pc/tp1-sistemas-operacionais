@@ -1,10 +1,9 @@
 /*
- Versao 1: Leitores e Escritores SEM preferencia de acesso (leitura suja).
+ Versao 1: Leitores e Escritores sem a preferencia de acesso (leitura suja eca).
  
   Tema: conta bancaria compartilhada (em conta/conta.c).
-  Escritores (deposito/saque): exclusao mutua ENTRE SI via semaforo binario.
-    Leitores: NAO sincronizam com ninguem. Por isso podem ler o saldo
-    provisorio de uma transacao ainda nao confirmada = LEITURA SUJA.
+  Escritores (deposito/saque): exclusao mutua entre eles msm com umm semaforo binario.
+    Leitores: nao vao sincronizar com ninguem. Por isso podem ler o saldo provisorio de uma transacao ainda nao confirmada (leitura suja).
  
   Uso: ./versao1_leitura_suja <leitores> <escritores> <delay_leitor_ms> <delay_escritor_ms>
  */
@@ -31,13 +30,13 @@
 // Instancia compartilhada da conta bancaria
 ContaBancaria* g_conta = NULL;
 
-// Semaforo binario (valor inicial 1): so UM escritor altera a conta por vez.
-// Os leitores NAO usam este semaforo de proposito: e isso que permite a leitura suja
+// Semaforo binario (valor inicial 1): so um escritor altera a conta por vez.
+// Os leitores nao usam este semaforo de proposito: e isso que permite a leitura suja
 sem_t sem_escritores;
 
 
-// Varios leitores podem detectar leitura suja ao mesmo tempo, por isso o
-// contador tem mutex proprio (independente do acesso a conta).
+// Varios leitores podem detectar leitura suja ao mesmo tempo, por isso o contador tem mutex proprio (independente do acesso a conta).
+
 // Estatisticas
 int g_total_leituras_sujas = 0;
 pthread_mutex_t mutex_estatisticas;
@@ -49,9 +48,10 @@ int g_delay_leitor_ms = 80;
 int g_delay_escritor_ms = 250;
 
 // valores_escritores[i]: operacao do escritor i ( >  0 deposito, <  0 saque).
-// saldo_esperado_matematico: saldo inicial + soma das operacoes; conferido no
-// final para provar que nenhuma atualizacao foi perdida.
 double valores_escritores[100];
+
+
+//  saldo_esperado_matematico: saldo inicial + soma das operacoes. conferido no final para provar que nenhuma atualizacao foi de vala (perdida)
 double saldo_esperado_matematico = 0.0;
 
 typedef struct {
@@ -67,19 +67,19 @@ void* thread_escritora(void* arg) {
     printf(ANSI_YELLOW "[ESCRITOR %ld] Criado: %s R$ %.2f\n" ANSI_RESET,
            id, (valor >= 0 ? "deposito de" : "saque de"), (valor >= 0 ? valor : -valor));
 
-// Atraso aleatorio de chegada. varia a ordem em que as threads disputam a conta.
+// Atraso aleatorio de chegada. varia a ordem em que as threads disputam a conta
     usleep((rand() % 300) * 1000);
 
     printf(ANSI_YELLOW "[ESCRITOR %ld] Aguardando acesso exclusivo...\n" ANSI_RESET, id);
 
 
-// Se outro escritor estiver na secao critica, esta thread BLOQUEIA aqui ate o outro executar sem_post.
+// Se outro escritor estiver na secao critica, esta thread barra e bloqueia aqui ate o outro executar sem_post
     sem_wait(&sem_escritores);
 
     printf(ANSI_BOLD ANSI_MAGENTA "[ESCRITOR %ld] Entrou na secao critica\n" ANSI_RESET, id);
 
 
-    // conta_atualizar marca a transacao como "em andamento" e so confirma o saldo e apos o delay. Durante essa janela, um leitor pode enxergar o valor provisorio.
+    // conta_atualizar marca a transacao como "em andamento" e so confirma o saldo e apos o delay. Durante essa janela, um leitor pode enxergar o valor provisorio
     double novo_saldo = conta_atualizar(g_conta, id, valor, g_delay_escritor_ms);
 
     printf(ANSI_BOLD ANSI_MAGENTA "[ESCRITOR %ld] Operacao concluida. Novo saldo = R$ %.2f (total ops: %d)\n" ANSI_RESET,
@@ -106,19 +106,16 @@ void* thread_leitora(void* arg) {
     char status_lido[64];
     long escritor_ativo_id = -1;
 
-    int leitura_suja = conta_consultar(g_conta, &saldo_lido, &ops_lidas, 
-                                       status_lido, &escritor_ativo_id, g_delay_leitor_ms);
+    int leitura_suja = conta_consultar(g_conta, &saldo_lido, &ops_lidas, status_lido, &escritor_ativo_id, g_delay_leitor_ms);
 
     if (leitura_suja) {
         pthread_mutex_lock(&mutex_estatisticas);
         g_total_leituras_sujas++;
         pthread_mutex_unlock(&mutex_estatisticas);
 
-        printf(ANSI_BOLD ANSI_RED "[LEITOR %ld] Leitura suja detectada! Leu R$ %.2f (Escritor %ld ativo em '%s')\n" ANSI_RESET,
-               id, saldo_lido, escritor_ativo_id, status_lido);
+        printf(ANSI_BOLD ANSI_RED "[LEITOR %ld] Leitura suja detectada! Leu R$ %.2f (Escritor %ld ativo em '%s')\n" ANSI_RESET, id, saldo_lido, escritor_ativo_id, status_lido);
     } else {
-        printf(ANSI_GREEN "[LEITOR %ld] Leitura limpa: Saldo = R$ %.2f | Ops = %d\n" ANSI_RESET,
-               id, saldo_lido, ops_lidas);
+        printf(ANSI_GREEN "[LEITOR %ld] Leitura limpa: Saldo = R$ %.2f | Ops = %d\n" ANSI_RESET, id, saldo_lido, ops_lidas);
     }
 
     printf(ANSI_CYAN "[LEITOR %ld] Consulta finalizada\n" ANSI_RESET, id);
@@ -129,7 +126,7 @@ void* thread_leitora(void* arg) {
 int main(int argc, char* argv[]) {
     srand(time(NULL));
 
-    printf("=============================================================\n");
+    printf("=========================================================\n");
     printf(" Versao 1: Leitores e Escritores sem preferencia (Leitura Suja)\n");
     printf("=========================================================\n\n");
 
@@ -151,7 +148,8 @@ int main(int argc, char* argv[]) {
             printf("Tempo de leitura do leitor (ms, ex: 80): ");
             if (scanf("%d", &g_delay_leitor_ms) != 1) g_delay_leitor_ms = 80;
         }
-    }
+        
+// confere se os valores digitados fazem sentido antes de criar as threads. Se fpr mais de 100 estoura o vetor valores_escritores e negativo quebra o programa e morre
     if (g_num_leitores < 1 || g_num_leitores > 100 ||
         g_num_escritores < 1 || g_num_escritores > 100 ||
         g_delay_leitor_ms < 0 || g_delay_escritor_ms < 0) {
@@ -203,7 +201,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Aguarda todas as threads terminarem antes de ler o resultado final.
+    // Aguarda todas as threads terminarem antes de ler o resultado final
     for (int i = 0; i < g_num_escritores; i++) {
         pthread_join(threads_e[i], NULL);
     }
