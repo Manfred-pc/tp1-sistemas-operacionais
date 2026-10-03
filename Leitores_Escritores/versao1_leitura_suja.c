@@ -51,7 +51,7 @@ void* thread_escritora(void* arg) {
     printf(ANSI_YELLOW "[ESCRITOR %ld] Criado: %s R$ %.2f\n" ANSI_RESET,
            id, (valor >= 0 ? "deposito de" : "saque de"), (valor >= 0 ? valor : -valor));
 
-    usleep((rand() % 30) * 100000);
+    usleep((rand() % 300) * 1000);
 
     printf(ANSI_YELLOW "[ESCRITOR %ld] Aguardando acesso exclusivo...\n" ANSI_RESET, id);
 
@@ -76,7 +76,7 @@ void* thread_leitora(void* arg) {
 
     printf(ANSI_CYAN "[LEITOR %ld] Iniciando consulta...  \n" ANSI_RESET, id);
 
-    usleep((rand() % 100) * 1000);
+    usleep((rand() % 300) * 1000);
 
     printf(ANSI_CYAN "[LEITOR %ld] Lendo dados da conta... \n" ANSI_RESET, id);
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 
     printf("=============================================================\n");
     printf(" Versao 1: Leitores e Escritores sem preferencia (Leitura Suja)\n");
-    printf("===========================================================\n\n");
+    printf("=========================================================\n\n");
 
     if (argc >= 5) {
         g_num_leitores = atoi(argv[1]);
@@ -130,6 +130,12 @@ int main(int argc, char* argv[]) {
             printf("Tempo de leitura do leitor (ms, ex: 80): ");
             if (scanf("%d", &g_delay_leitor_ms) != 1) g_delay_leitor_ms = 80;
         }
+    }
+    if (g_num_leitores < 1 || g_num_leitores > 100 ||
+        g_num_escritores < 1 || g_num_escritores > 100 ||
+        g_delay_leitor_ms < 0 || g_delay_escritor_ms < 0) {
+        fprintf(stderr, "Erro: leitores e escritores devem estar entre 1 e 100 e os atrasos devem ser >= 0.\n");
+        return EXIT_FAILURE;
     }
 
     // Inicializacao da conta
