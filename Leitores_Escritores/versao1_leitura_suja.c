@@ -1,4 +1,13 @@
-// Versao 1: Leitores e escritores sem preferencia de acesso (demonstracao de leitura suja)
+/*
+ Versao 1: Leitores e Escritores SEM preferencia de acesso (leitura suja).
+ 
+  Tema: conta bancaria compartilhada (em conta/conta.c).
+  Escritores (deposito/saque): exclusao mutua ENTRE SI via semaforo binario.
+    Leitores: NAO sincronizam com ninguem. Por isso podem ler o saldo
+    provisorio de uma transacao ainda nao confirmada = LEITURA SUJA.
+ 
+  Uso: ./versao1_leitura_suja <leitores> <escritores> <delay_leitor_ms> <delay_escritor_ms>
+ */
 
 #include <stdio.h> 
 #include <stdlib.h>
@@ -22,9 +31,13 @@
 // Instancia compartilhada da conta bancaria
 ContaBancaria* g_conta = NULL;
 
-// Semaforo para exclusao mutua entre escritores
+// Semaforo binario (valor inicial 1): so UM escritor altera a conta por vez.
+// Os leitores NAO usam este semaforo de proposito: e isso que permite a leitura suja
 sem_t sem_escritores;
 
+
+// Varios leitores podem detectar leitura suja ao mesmo tempo, por isso o
+// contador tem mutex proprio (independente do acesso a conta).
 // Estatisticas
 int g_total_leituras_sujas = 0;
 pthread_mutex_t mutex_estatisticas;
@@ -35,6 +48,9 @@ int g_num_escritores = 3;
 int g_delay_leitor_ms = 80;
 int g_delay_escritor_ms = 250;
 
+// valores_escritores[i]: operacao do escritor i ( >  0 deposito, <  0 saque).
+// saldo_esperado_matematico: saldo inicial + soma das operacoes; conferido no
+// final para provar que nenhuma atualizacao foi perdida.
 double valores_escritores[100];
 double saldo_esperado_matematico = 0.0;
 
@@ -51,14 +67,19 @@ void* thread_escritora(void* arg) {
     printf(ANSI_YELLOW "[ESCRITOR %ld] Criado: %s R$ %.2f\n" ANSI_RESET,
            id, (valor >= 0 ? "deposito de" : "saque de"), (valor >= 0 ? valor : -valor));
 
+// Atraso aleatorio de chegada. varia a ordem em que as threads disputam a conta.
     usleep((rand() % 300) * 1000);
 
     printf(ANSI_YELLOW "[ESCRITOR %ld] Aguardando acesso exclusivo...\n" ANSI_RESET, id);
 
+
+// Se outro escritor estiver na secao critica, esta thread BLOQUEIA aqui ate o outro executar sem_post.
     sem_wait(&sem_escritores);
 
     printf(ANSI_BOLD ANSI_MAGENTA "[ESCRITOR %ld] Entrou na secao critica\n" ANSI_RESET, id);
 
+
+    // conta_atualizar marca a transacao como "em andamento" e so confirma o saldo e apos o delay. Durante essa janela, um leitor pode enxergar o valor provisorio.
     double novo_saldo = conta_atualizar(g_conta, id, valor, g_delay_escritor_ms);
 
     printf(ANSI_BOLD ANSI_MAGENTA "[ESCRITOR %ld] Operacao concluida. Novo saldo = R$ %.2f (total ops: %d)\n" ANSI_RESET,
@@ -182,6 +203,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Aguarda todas as threads terminarem antes de ler o resultado final.
     for (int i = 0; i < g_num_escritores; i++) {
         pthread_join(threads_e[i], NULL);
     }
