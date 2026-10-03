@@ -1,0 +1,19 @@
+# Objetos e binários gerados pelo Makefile
+*.o
+versao1_leitura_suja
+versao2
+versao3
+ 
+# Arquivos de debug / core dumps
+core
+core.*
+*.out
+*.dSYM/
+ 
+# VS Code
+.vscode/
+ 
+# Arquivos temporários
+*~
+*.swp
+ 

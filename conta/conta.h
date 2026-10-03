@@ -18,9 +18,12 @@ const char* conta_obter_titular(const ContaBancaria*c );
 double conta_obter_saldo(const ContaBancaria* c);
 
 // retornar a qtd total de operações concluidas na conta
+int conta_obter_operacoes(const ContaBancaria* c);
 
-int conta_consultar(const ContaBancaria*c, double* saldo_lido, int* ops_lidas, char* status_lido, long* escritar_id, int delays_ms);
+int conta_consultar(const ContaBancaria* c, double* saldo_lido, int* ops_lidas, char* status_lido, long* escritor_id, int delay_ms);
 
-double conta_atualizar_desprotegido(ContaBancaria*c, long escritor_id, double valor, int delay_ms);
+double conta_atualizar(ContaBancaria* c, long escritor_id, double valor, int delay_ms);
+
+double conta_atualizar_desprotegido(ContaBancaria* c, long escritor_id, double valor, int delay_ms);
 
 #endif
