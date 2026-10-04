@@ -82,9 +82,6 @@ void* thread_escritora(void* arg) {
 // Atraso aleatorio de chegada. varia a ordem em que as threads disputam a conta
     usleep((rand() % 300) * 1000);
 
-    printf(ANSI_YELLOW "[ESCRITOR %ld] Aguardando acesso exclusivo...\n" ANSI_RESET, id);
-
-
 // Se outro escritor estiver na secao critica, esta thread barra e bloqueia aqui ate o outro executar sem_post
     esperar_avisando(&sem_escritores, "ESCRITOR", id, "outro escritor esta usando a conta");
 
