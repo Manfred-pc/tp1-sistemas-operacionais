@@ -10,13 +10,12 @@
 
 #include <stdio.h> 
 #include <stdlib.h>
-#include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
-#include "conta.h"
+#include "../conta/conta.h"
 
 // Cores ANSI para o terminal
 #define ANSI_RESET   "\x1b[0m"

@@ -3,22 +3,22 @@ CFLAGS = -Wall -Wextra -pthread -O2 -I$(CONTA_DIR)
 
 SRC_DIR = Leitores_Escritores
 CONTA_DIR = conta
+PC_DIR = Produtores_Consumidores
 
-TARGETS = versao1_leitura_suja versao2 versao3
+TARGETS = versao1_leitura_suja versao2 versao3 pc_versao3
 OBJS = conta.o
 
 .PHONY: all clean run run1 run2 run3 help
 
 # Alvo padrão: compila  as três versões
 all: $(TARGETS)
-	@echo "=========================================================="
 	@echo "Módulo TAD (conta.o) e Versões 1, 2 e 3 compilados com sucesso!"
 	@echo "Execute:"
-	@echo "  make run1  -> Versão 1 (sem preferência, leitura suja)"
-	@echo "  make run2  -> Versão 2 (escritores com preferência)"
-	@echo "  make run3  -> Versão 3 (sem controle de concorrência)"
-	@echo "  make run   -> Executa as três em sequência"
-	@echo "=========================================================="
+	@echo "make run1 -> Versão 1 (sem preferência, leitura suja)"
+	@echo "make run2 -> Versão 2 (escritores com preferência)"
+	@echo "make run3 -> Versão 3 (sem controle de concorrência)"
+	@echo "make run -> Executa as três em sequência"
+	@echo "make run_pc3 -> Versão 3 (Produtores e Consumidores)"
 
 # Compilação do Módulo TAD (conta.o)
 conta.o: $(CONTA_DIR)/conta.c $(CONTA_DIR)/conta.h
@@ -36,6 +36,9 @@ versao2: $(SRC_DIR)/versao2.c conta.o
 versao3: $(SRC_DIR)/versao3.c conta.o
 	$(CC) $(CFLAGS) $(SRC_DIR)/versao3.c conta.o -o $@
 
+pc_versao3: $(PC_DIR)/versao3.c
+	$(CC) $(CFLAGS) $(PC_DIR)/versao3.c -o $@
+
 # Executa a Versão 1 (4 leitores, 3 escritores, delays 60ms e 200ms)
 run1: versao1_leitura_suja
 	./versao1_leitura_suja 4 3 60 200
@@ -50,6 +53,9 @@ run3: versao3
 
 # Executa as três versões em sequência
 run: run1 run2 run3
+
+run_pc3: pc_versao3
+	./pc_versao3
 
 # Limpeza dos binários e arquivos objeto
 clean:
