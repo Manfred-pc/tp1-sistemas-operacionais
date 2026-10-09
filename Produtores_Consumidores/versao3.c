@@ -44,11 +44,11 @@ int main(){
     pthread_t consumidores[NUM_CONSUMIDORES];
 
     for(long i = 0; i < NUM_PRODUTORES; i++){
-        pthread_create(&produtores[i], NULL, produtor, NULL);
+        pthread_create(&produtores[i], NULL, produtor, (void*)i);
     }
 
     for(long i = 0; i < NUM_CONSUMIDORES; i++){
-        pthread_create(&consumidores[i], NULL, consumidor, NULL);
+        pthread_create(&consumidores[i], NULL, consumidor, (void*)i);
     }
 
     for(int i = 0; i < NUM_PRODUTORES; i++){
