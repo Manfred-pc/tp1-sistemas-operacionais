@@ -23,6 +23,12 @@ void* produtor(void*  arg){
     while(1){
         sleep(1);
 
+        int vagas;
+        sem_getvalue(&espacos_vazios, &vagas);
+        if (vagas == 0) {
+            printf("Processo Produtor %ld dormindo...\n", id);
+        }
+
         sem_wait(&espacos_vazios);
 
         pthread_mutex_lock(&mutex);

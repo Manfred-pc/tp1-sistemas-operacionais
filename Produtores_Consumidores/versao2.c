@@ -5,7 +5,7 @@
 
 #define TAM_BUFFER 5
 #define NUM_PRODUTORES 3
-#define NUM_CONSUMIDORES 3
+#define NUM_CONSUMIDORES 6
 
 int buffer[TAM_BUFFER];
 int contador_itens = 0;
@@ -22,6 +22,12 @@ void* produtor(void*  arg){
 
     while(1){
         sleep(1);
+
+        int itens;
+        sem_getvalue(&itens_disponiveis, &itens);
+        if (itens == 0) {
+            printf("Processo Consumidor %ld dormindo...\n", id);
+        }
 
         sem_wait(&espacos_vazios);
 
