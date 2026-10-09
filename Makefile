@@ -20,7 +20,7 @@ all: $(TARGETS)
 	@echo "  make run_le  -> Executa as três versões LE em sequência"
 	@echo "  make run_pc1 -> Versão 1 (Produtores/Consumidores)"
 	@echo "  make run_pc2 -> Versão 2 (Produtores/Consumidores)"
-	@echo "  make run_pc3 -> Versão 3 (Produtores/Consumidores - o caos)"
+	@echo "  make run_pc3 -> Versão 3 (Produtores/Consumidores)"
 
 # Compilação do Módulo TAD (conta.o)
 conta.o: $(CONTA_DIR)/conta.c $(CONTA_DIR)/conta.h
