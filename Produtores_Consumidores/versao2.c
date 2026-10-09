@@ -22,11 +22,12 @@ void* produtor(void*  arg){
 
     while(1){
         sleep(1);
-
-        int vagas;
-        sem_getvalue(&espacos_vazios, &vagas);
-        if (vagas == 0) {
+        
+        // se true (retornar diferente de 0), o buffer ta cheio
+        if (sem_trywait(&espacos_vazios) != 0) {
             printf("Processo Produtor %ld dormindo...\n\n", id);
+            // Agora sim, como sabemos que está cheio, mandamos a thread bloquear e esperar
+            sem_wait(&espacos_vazios);
         }
 
         sem_wait(&espacos_vazios);
@@ -53,10 +54,11 @@ void* consumidor(void* arg){
     while(1){
         sleep(2);
 
-        int itens;
-        sem_getvalue(&itens_disponiveis, &itens);
-        if (itens == 0) {
+        
+        if (sem_trywait(&itens_disponiveis) != 0) {
             printf("Processo Consumidor %ld dormindo...\n\n", id);
+            // bloqueia e espera alguém produzir
+            sem_wait(&itens_disponiveis);
         }
 
         sem_wait(&itens_disponiveis);
