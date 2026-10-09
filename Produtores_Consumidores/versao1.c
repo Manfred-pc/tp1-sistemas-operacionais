@@ -26,7 +26,7 @@ void* produtor(void*  arg){
         int vagas;
         sem_getvalue(&espacos_vazios, &vagas);
         if (vagas == 0) {
-            printf("Processo Produtor %ld dormindo...\n", id);
+            printf("Processo Produtor %ld dormindo...\n\n", id);
         }
 
         sem_wait(&espacos_vazios);
@@ -35,7 +35,7 @@ void* produtor(void*  arg){
 
         buffer[in] = dado;
         contador_itens++;
-        printf("Produtor %ld produzindo o valor %d (Posicao %d). Total no buffer: %d\n", id, dado, in, contador_itens);
+        printf("Produtor %ld produzindo o valor %d (Posicao %d). Total no buffer: %d\n\n", id, dado, in, contador_itens);
         in = (in+1) % TAM_BUFFER;
         dado++;
 
@@ -59,7 +59,7 @@ void* consumidor(void* arg){
         
         int pedido = buffer[out];
         contador_itens--;
-        printf("Consumidor %ld consumindo o valor %d (Posicao %d). Total no buffer: %d\n",id,pedido,out,contador_itens);
+        printf("Consumidor %ld consumindo o valor %d (Posicao %d). Total no buffer: %d\n\n",id,pedido,out,contador_itens);
         out = (out + 1) % TAM_BUFFER;
 
         pthread_mutex_unlock(&mutex);

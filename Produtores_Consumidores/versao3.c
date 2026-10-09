@@ -18,7 +18,7 @@ void* produtor(void* arg){
         if(contador_itens < TAM_BUFFER){
             buffer[contador_itens] = 7; //valor genérico
             contador_itens++;
-            printf("Processo %ld produzindo. Itens no buffer: %d\n",id,contador_itens);
+            printf("Processo %ld produzindo. Itens no buffer: %d\n\n",id,contador_itens);
 
         }
     }
@@ -33,7 +33,7 @@ void* consumidor(void* arg){
 
         if(contador_itens > 0){
             contador_itens--;
-            printf("Processo Consumidor %ld consumindo. Itens restantes: %d\n",id,contador_itens);
+            printf("Processo Consumidor %ld consumindo. Itens restantes: %d\n\n",id,contador_itens);
         }
     }
     pthread_exit(NULL);
