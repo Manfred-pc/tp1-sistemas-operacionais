@@ -30,8 +30,6 @@ void* produtor(void*  arg){
             sem_wait(&espacos_vazios);
         }
 
-        sem_wait(&espacos_vazios);
-
         pthread_mutex_lock(&mutex);
 
         buffer[in] = dado;
@@ -60,8 +58,6 @@ void* consumidor(void* arg){
             // bloqueia e espera alguém produzir
             sem_wait(&itens_disponiveis);
         }
-
-        sem_wait(&itens_disponiveis);
 
         pthread_mutex_lock(&mutex);
         
