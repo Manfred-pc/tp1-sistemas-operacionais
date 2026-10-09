@@ -23,10 +23,10 @@ void* produtor(void*  arg){
     while(1){
         sleep(1);
 
-        int itens;
-        sem_getvalue(&itens_disponiveis, &itens);
-        if (itens == 0) {
-            printf("Processo Consumidor %ld dormindo...\n\n", id);
+        int vagas;
+        sem_getvalue(&espacos_vazios, &vagas);
+        if (vagas == 0) {
+            printf("Processo Produtor %ld dormindo...\n\n", id);
         }
 
         sem_wait(&espacos_vazios);
@@ -52,6 +52,12 @@ void* consumidor(void* arg){
 
     while(1){
         sleep(2);
+
+        int itens;
+        sem_getvalue(&itens_disponiveis, &itens);
+        if (itens == 0) {
+            printf("Processo Consumidor %ld dormindo...\n\n", id);
+        }
 
         sem_wait(&itens_disponiveis);
 

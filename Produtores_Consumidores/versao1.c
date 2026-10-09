@@ -53,6 +53,12 @@ void* consumidor(void* arg){
     while(1){
         sleep(2);
 
+        int itens;
+        sem_getvalue(&itens_disponiveis, &itens);
+        if (itens == 0) {
+            printf("Processo Consumidor %ld dormindo...\n\n", id);
+        }
+
         sem_wait(&itens_disponiveis);
 
         pthread_mutex_lock(&mutex);
