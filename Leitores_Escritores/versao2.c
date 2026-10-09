@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-#include "conta.h"
+#include "../conta/conta.h"
 
 // Cores para o terminal
 #define ANSI_RESET   "\x1b[0m"
