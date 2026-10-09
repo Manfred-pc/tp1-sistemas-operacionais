@@ -1,6 +1,6 @@
 #include <pthread.h>
 #include <stdio.h>
-#include<unistd.h>
+#include <unistd.h>
 
 #define TAM_BUFFER 10
 #define NUM_PRODUTORES 2
@@ -8,19 +8,31 @@
 
 int buffer[TAM_BUFFER];
 int contador_itens = 0;
+int in = 0;  // Índice para o produtor
+int out = 0; // Índice para o consumidor
 
 void* produtor(void* arg){
     long id = (long) arg;
+    int dado = 7; // valor genérico
 
     while(1){
         sleep(1);
-
-        if(contador_itens < TAM_BUFFER){
-            buffer[contador_itens] = 7; //valor genérico
-            contador_itens++;
-            printf("Processo %ld produzindo. Itens no buffer: %d\n\n",id,contador_itens);
-
+        
+        buffer[in] = dado;
+        contador_itens++;
+        printf("Estado do Buffer: [ ");
+        for(int i = 0; i < TAM_BUFFER; i++) {
+            printf("%d ", buffer[i]); 
         }
+        printf("]\n\n");
+        printf("Processo Produtor %ld produzindo (Posicao %d). Itens no buffer: %d. ", id, in, contador_itens);
+        printf("Estado do Buffer: [ ");
+        for(int i = 0; i < TAM_BUFFER; i++) {
+            printf("%d ", buffer[i]); 
+        }
+        printf("]\n\n");
+
+        in = (in + 1) % TAM_BUFFER; 
     }
     pthread_exit(NULL);
 }
@@ -31,10 +43,16 @@ void* consumidor(void* arg){
     while(1){
         sleep(2);
 
-        if(contador_itens > 0){
-            contador_itens--;
-            printf("Processo Consumidor %ld consumindo. Itens restantes: %d\n\n",id,contador_itens);
+        contador_itens--;
+
+        printf("Processo Consumidor %ld consumindo (Posicao %d). Itens restantes: %d. ", id, out, contador_itens);
+        printf("Estado do Buffer: [ ");
+        for(int i = 0; i < TAM_BUFFER; i++) {
+            printf("%d ", buffer[i]); 
         }
+        printf("]\n\n");
+
+        out = (out + 1) % TAM_BUFFER;
     }
     pthread_exit(NULL);
 }

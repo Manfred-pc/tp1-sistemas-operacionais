@@ -34,9 +34,15 @@ void* produtor(void*  arg){
 
         buffer[in] = dado;
         contador_itens++;
-        printf("Produtor %ld produzindo o valor %d (Posicao %d). Total no buffer: %d\n\n", id, dado, in, contador_itens);
+        printf("Produtor %ld produzindo o valor %d (Posicao %d). Total no buffer: %d. ", id, dado, in, contador_itens);
         in = (in+1) % TAM_BUFFER;
         dado++;
+
+        printf("Estado do Buffer: [ ");
+        for(int i = 0; i < TAM_BUFFER; i++) {
+            printf("%d ", buffer[i]); 
+        }
+        printf("]\n\n");
 
         pthread_mutex_unlock(&mutex);
 
@@ -63,8 +69,14 @@ void* consumidor(void* arg){
         
         int pedido = buffer[out];
         contador_itens--;
-        printf("Consumidor %ld consumindo o valor %d (Posicao %d). Total no buffer: %d\n\n",id,pedido,out,contador_itens);
+        printf("Consumidor %ld consumindo o valor %d (Posicao %d). Total no buffer: %d. ",id,pedido,out,contador_itens);
         out = (out + 1) % TAM_BUFFER;
+
+        printf("Estado do Buffer: [ ");
+        for(int i = 0; i < TAM_BUFFER; i++) {
+            printf("%d ", buffer[i]); 
+        }
+        printf("]\n\n");
 
         pthread_mutex_unlock(&mutex);
 
